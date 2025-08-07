@@ -27,9 +27,12 @@ import panel as pn
 
 def create_server_app():
     """Create the Panel server application."""
-    # Configure Panel for production
+    # Configure Panel for production with proper session handling
     pn.config.sizing_mode = 'stretch_width'
     pn.config.theme = 'default'
+    
+    # Enable session state for proper multi-user support
+    pn.config.session_state = True
     
     # Create the dashboard
     app = dashboard
@@ -73,6 +76,7 @@ def main():
         'host': args.host,
         'allow_websocket_origin': ['*'],  # Allow connections from any origin
         'websocket_origin': ['*'],
+        'session_state': True,  # Enable session state for multi-user support
     }
     
     if args.debug:
@@ -91,7 +95,8 @@ def main():
     
     # Start the server
     try:
-        app.show(**server_kwargs)
+        # Use pn.serve() for proper multi-user support
+        pn.serve(app, **server_kwargs)
     except KeyboardInterrupt:
         print("\n👋 Dashboard stopped by user")
     except Exception as e:
