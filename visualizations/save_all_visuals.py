@@ -1,5 +1,5 @@
 import pandas as pd
-from starlink_speedtest.visualizations.speedtest_visualizer import SpeedTestVisualizer
+from .speedtest_visualizer import SpeedTestVisualizer
 
 # Load your data
 mlab_data = pd.read_csv('../../starlink_speedtest/data/mlab_ndt_2025-05-08_to_2025-05-13.csv')

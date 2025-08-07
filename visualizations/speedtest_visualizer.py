@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from typing import Dict, List, Optional, Tuple
 
-from starlink_speedtest.visualizations.base_visualizer import BaseVisualizer
+from .base_visualizer import BaseVisualizer
 
 class SpeedTestVisualizer(BaseVisualizer):
     def __init__(self):
