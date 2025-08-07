@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlink Speed Test Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            background-color: #2c3e50;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        .viz-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 600px;
+        }
+        .btn-viz {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .btn-viz:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .btn-viz.active {
+            background-color: #2c3e50;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">Starlink Speed Test Analysis</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-center flex-wrap mb-4">
+                    <button class="btn btn-viz" onclick="loadVisualization('speed_comparison')">Speed Comparison</button>
+                    <button class="btn btn-viz" onclick="loadVisualization('latency_comparison')">Latency Comparison</button>
+                    <button class="btn btn-viz" onclick="loadVisualization('geographic_speed_map')">Geographic Map</button>
+                    <button class="btn btn-viz" onclick="loadVisualization('time_series_analysis')">Time Series Analysis</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="viz-container">
+                    <div id="loading" class="loading">
+                        <div class="spinner-border loading-spinner text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading visualization...</p>
+                    </div>
+                    <div id="visualization"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function loadVisualization(vizType) {
+            // Update active button
+            document.querySelectorAll('.btn-viz').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show loading spinner
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('visualization').innerHTML = '';
+
+            // Load visualization
+            fetch(`/visualization/${vizType}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('visualization').innerHTML = html;
+                    document.getElementById('loading').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error loading visualization:', error);
+                    document.getElementById('visualization').innerHTML = '<div class="alert alert-danger">Error loading visualization</div>';
+                    document.getElementById('loading').style.display = 'none';
+                });
+        }
+
+        // Load the first visualization by default
+        window.onload = function() {
+            document.querySelector('.btn-viz').click();
+        };
+    </script>
+</body>
+</html> 
