@@ -71,7 +71,6 @@ def main():
     server_kwargs = {
         'port': args.port,
         'host': args.host,
-        'show': True,
         'allow_websocket_origin': ['*'],  # Allow connections from any origin
         'websocket_origin': ['*'],
     }
