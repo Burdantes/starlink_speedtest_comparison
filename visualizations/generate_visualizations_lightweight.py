@@ -459,9 +459,14 @@ intro = pn.pane.Markdown(
 )
 
 # --- State-level (Admin1) Mapping Tab ---
-admin1_shp = '../data/ne_10m_admin_1_states_provinces/ne_10m_admin_1_states_provinces.shp'
+# Use absolute path based on script location
+admin1_shp = os.path.join(base_dir, 'data', 'ne_10m_admin_1_states_provinces', 'ne_10m_admin_1_states_provinces.shp')
 
 # Check if shapefile exists, if not, create a simple fallback
+print(f"🔍 Looking for shapefile at: {admin1_shp}")
+print(f"📁 Current working directory: {os.getcwd()}")
+print(f"📁 Base directory: {base_dir}")
+
 try:
     gdf_admin1 = gpd.read_file(admin1_shp)
     # Filter shapefile for US only
