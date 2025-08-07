@@ -460,14 +460,32 @@ intro = pn.pane.Markdown(
 
 # --- State-level (Admin1) Mapping Tab ---
 admin1_shp = '../data/ne_10m_admin_1_states_provinces/ne_10m_admin_1_states_provinces.shp'
-gdf_admin1 = gpd.read_file(admin1_shp)
 
-# Filter shapefile for US only
-gdf_admin1_us = gdf_admin1[gdf_admin1['iso_a2'] == 'US'].copy()
-
-# Merge with shapefile
-gdf_cf = gdf_admin1_us.merge(df_cloudflare_state, on=['name', 'iso_a2'], how='left')
-gdf_starlink = gdf_admin1_us.merge(df_starlink_internal, on=['name', 'iso_a2'], how='left')
+# Check if shapefile exists, if not, create a simple fallback
+try:
+    gdf_admin1 = gpd.read_file(admin1_shp)
+    # Filter shapefile for US only
+    gdf_admin1_us = gdf_admin1[gdf_admin1['iso_a2'] == 'US'].copy()
+    
+    # Merge with shapefile
+    gdf_cf = gdf_admin1_us.merge(df_cloudflare_state, on=['name', 'iso_a2'], how='left')
+    gdf_starlink = gdf_admin1_us.merge(df_starlink_internal, on=['name', 'iso_a2'], how='left')
+    
+    # Flag to indicate if geographic mapping is available
+    GEOGRAPHIC_MAPPING_AVAILABLE = True
+    print("✅ Geographic mapping data loaded successfully")
+    
+except Exception as e:
+    print(f"⚠️ Geographic mapping data not available: {e}")
+    print("📊 Dashboard will run without geographic maps")
+    
+    # Create empty GeoDataFrames as fallback
+    gdf_cf = gpd.GeoDataFrame()
+    gdf_starlink = gpd.GeoDataFrame()
+    gdf_admin1_us = gpd.GeoDataFrame()
+    
+    # Flag to indicate geographic mapping is not available
+    GEOGRAPHIC_MAPPING_AVAILABLE = False
 
 # For M-Lab state data, we need to aggregate from the main dataset
 def aggregate_mlab_state_data():
@@ -685,6 +703,17 @@ def update_state_maps(metric_label):
     if not metric_label:
         return pn.pane.Markdown("Please select a metric.")
     
+    # Check if geographic mapping is available
+    if not GEOGRAPHIC_MAPPING_AVAILABLE:
+        return pn.pane.Markdown("""
+        <div style='text-align:center; padding: 20px; background-color: #f8f9fa; border-radius: 10px;'>
+        <h3>⚠️ Geographic Mapping Not Available</h3>
+        <p>The geographic mapping data (shapefiles) are not available in this deployment.</p>
+        <p>This tab requires additional geographic data files that are not included in the web deployment.</p>
+        <p>Please use the M-Lab and Cloudflare tabs for data analysis.</p>
+        </div>
+        """, sizing_mode='stretch_width')
+    
     # Find the metric key from the label
     metric = None
     for k, v in metric_labels_available.items():
@@ -734,6 +763,9 @@ state_map_panel = pn.Column(
         <div style='text-align:center'>
         <h2>US State-level Maps: M-Lab vs Cloudflare vs Starlink Internal</h2>
         <p>Select a metric to compare the average value at the state level across the United States for three datasets: M-Lab, Cloudflare, and Starlink's internal M-Lab data. All maps use the same color scale for direct comparison.</p>
+        """ + ("""
+        <p><em>Note: Geographic mapping requires additional data files. If maps are not available, please use the M-Lab and Cloudflare tabs for data analysis.</em></p>
+        """ if not GEOGRAPHIC_MAPPING_AVAILABLE else "") + """
         </div>
         """,
         sizing_mode='stretch_width',
